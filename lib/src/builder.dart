@@ -356,14 +356,22 @@ class MarkdownBuilder implements md.NodeVisitor {
           },
           child: _buildRichText(delegate.formatText(styleSheet, text.text)));
     } else {
-      child = _buildRichText(
-        TextSpan(
-          style: _inlines.last.style,
-          text: trimText(text.text),
-          recognizer: _linkHandlers.isNotEmpty ? _linkHandlers.last : null,
-        ),
-        textAlign: _textAlignForBlockTag(_currentBlockTag),
-      );
+      if(builders.containsKey(_inlines.last.tag)) {
+        child = builders[_inlines.last.tag!]!.visitText(
+            md.Text(trimText(text.text)),
+            _inlines.last.style,
+        );
+      } else {
+        child = _buildRichText(
+          TextSpan(
+            style: _inlines.last.style,
+            text: trimText(text.text),
+            recognizer: _linkHandlers.isNotEmpty ? _linkHandlers.last : null,
+          ),
+          textAlign: _textAlignForBlockTag(_currentBlockTag),
+        );
+      }
+
     }
     if (child != null) {
       _inlines.last.children.add(child);
